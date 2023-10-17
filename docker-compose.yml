@@ -6,14 +6,3 @@ services:
       - '9090:9090'
     volumes:
       - ./prometheus.yml:/etc/prometheus/prometheus.yml
-  exporter:
-    image: prometheuscommunity/stackdriver-exporter
-    volumes:
-      - "${GOOGLE_APPLICATION_CREDENTIALS:-~/.config/gcloud/application_default_credentials.json}:/home/application_default_credentials.json:ro"
-    environment:
-      GOOGLE_APPLICATION_CREDENTIALS: /home/application_default_credentials.json
-      GOOGLE_PROJECT_ID: ${GOOGLE_PROJECT_ID}
-      METRIC_PREFIXES: ${METRIC_PREFIXES}
-    command:
-      - "--google.project-id=${GOOGLE_PROJECT_ID}"
-      - "--monitoring.metrics-type-prefixes=${METRIC_PREFIXES}"
