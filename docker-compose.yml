@@ -1,8 +1,24 @@
 version: '3'
 services:
+  nginx:
+    image: nginx:latest
+    ports:
+      - '9090:80'
+    volumes:
+      - ./nginx/conf.d:/etc/nginx/conf.d
+    depends_on: [ "gcproxy" ]
+    restart: always
   prometheus:
     image: prom/prometheus
-    ports:
-      - '9090:9090'
     volumes:
       - ./prometheus.yml:/etc/prometheus/prometheus.yml
+  gcproxy:
+    image: golang:latest
+    volumes:
+      - ./gcproxy:/go/src/gcproxy
+      - "${GOOGLE_APPLICATION_CREDENTIALS:-~/.config/gcloud/application_default_credentials.json}:/application_default_credentials.json:ro"
+    environment:
+      GOOGLE_APPLICATION_CREDENTIALS: /application_default_credentials.json
+      GOOGLE_PROJECT_ID: ${GOOGLE_PROJECT_ID}
+    working_dir: /go/src/gcproxy
+    entrypoint: [ "go", "run", "gcproxy.go" ]
